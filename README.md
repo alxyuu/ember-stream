@@ -1,6 +1,6 @@
 # Ember Stream [![NPM Version](https://img.shields.io/npm/v/ember-stream.svg?style=flat-square)](https://www.npmjs.com/package/ember-stream)
 
-Observable streams addon for Ember CLI projects, using [RxJS](https://github.com/Reactive-Extensions/RxJS).
+Observable streams addon for Ember CLI projects, using [ReactiveX](http://reactivex.io) ([RxJS](https://github.com/Reactive-Extensions/RxJS)).
 
 ## Use in Ember CLI
 
@@ -24,7 +24,7 @@ This is an alias to the main Rx library, so that any object using the streamServ
 
 ##### createStream( func )
 
-Create an observable stream from a function definition. This currently just wraps *Rx.Observable.create()*, but in the future will support more Ember-friendly patterns.
+Create an observable stream from a function definition. This currently just wraps *Rx.Observable.create()*, but in the future will support additional Ember-friendly patterns.
 
 ##### findStream( streamName )
 
@@ -37,7 +37,7 @@ Register an observable stream to a referenceable name. Any observers that are aw
 There are two ways to call this method:
 
 - Pass in a single name and stream instance
-- Pass in a key-value hash, where the key is the stream name, and the value is the stream instance
+- Pass in a key-value hash, where each key is the stream name and its value is the stream instance
 
 ##### subscribeTo( streamName, observerOrOnNext, onError, onCompleted )
 
