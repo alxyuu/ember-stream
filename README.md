@@ -4,11 +4,19 @@ Observable streams addon for Ember CLI projects, using [RxJS](https://github.com
 
 ## Use in Ember CLI
 
-    ember install ember-stream
+```bash
+ember install ember-stream
+```
 
 ### Stream Service
 
-The primary object available is the stream service, located at `/addon/services/stream.js`. This service has the following methods available:
+The primary object available is the stream service, located at `/addon/services/stream.js`. You should inject this service onto your Ember objects:
+
+```javascript
+    streamService: Ember.inject.service( 'stream' ),
+```
+
+This service has the following methods available:
 
 ##### Rx
 
