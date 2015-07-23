@@ -4,7 +4,7 @@ Observable streams addon for Ember CLI projects, using [RxJS](https://github.com
 
 ## Use in Ember CLI
 
-- `ember install ember-stream`
+    ember install ember-stream
 
 ### Stream Service
 
