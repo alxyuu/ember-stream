@@ -10,7 +10,7 @@ Observable streams addon for Ember CLI projects, using [RxJS](https://github.com
 
 The primary object available is the stream service, located at `/addon/services/stream.js`. This service has the following methods available:
 
-#### Rx
+##### Rx
 
 This is an alias to the main Rx library, so that any object using the streamService has direct access to the native Reactive functionality.
 
