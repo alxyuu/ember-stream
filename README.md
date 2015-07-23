@@ -1,4 +1,4 @@
-# Ember Stream [![NPM Version](https://img.shields.io/npm/v/ember-stream.svg?style=flat-square)](https://www.npmjs.com/package/ember-stream)
+# Ember Stream [![NPM Version](https://img.shields.io/npm/v/ember-stream.svg?style=flat-square)](https://www.npmjs.com/package/ember-stream) [![Ember CLI Version](https://img.shields.io/badge/ember--cli-1.13.1-d84a32.svg?style=flat-square)](http://www.ember-cli.com) [![Ember Version](https://img.shields.io/badge/ember-1.13.3-e1563f.svg?style=flat-square)](http://emberjs.com)
 
 Observable streams addon for Ember CLI projects, using [ReactiveX](http://reactivex.io) ([RxJS](https://github.com/Reactive-Extensions/RxJS)).
 
