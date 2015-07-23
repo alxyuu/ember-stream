@@ -16,10 +16,6 @@ export default Ember.Component.extend({
     // -------------------------------------------------------------------------
     // Events
 
-    click( event ) {
-        this.sendAction();
-    },
-
     // -------------------------------------------------------------------------
     // Properties
 
@@ -29,18 +25,21 @@ export default Ember.Component.extend({
     // Observers
 
     setupStreams: Ember.on(
-        'init',
+        'didInsertElement',
         function() {
             const streamService = this.get( 'streamService' );
 
-            const clickStream = window.Rx.Observable.from( this.click );
-            streamService.register({ clickStream });
+            const clickStream = streamService.createStream( observer => {
+                this.$().bind( 'click', event => {
+                    observer.onNext( event );
+                });
+            });
 
             const doubleClickStream = clickStream
-                .selectMany( ( x, i ) => {
-                    console.log( x, i );
-                });
-            // streamService.register({ clickStream, doubleClickStream });
+                .timeInterval()
+                .filter( x => x.interval < 250 );
+
+            streamService.registerStream({ clickStream, doubleClickStream });
         }
     )
 

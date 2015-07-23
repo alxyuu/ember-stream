@@ -12,6 +12,24 @@ let subscriptions = {};
 export default Ember.Service.extend({
 
     /**
+     * Create an observable stream from a function definition
+     *
+     * @function
+     * @param {Function} func - The function to create the stream from
+     * @param {String} [name] - A name to register the stream to
+     * @returns {rx/Observable} - The created observable stream
+     */
+    createStream( func, name ) {
+        const stream = this.Rx.Observable.create( func );
+
+        if ( name ) {
+            this.registerStream( name, stream );
+        }
+
+        return stream;
+    },
+
+    /**
      * Lookup an observable stream by its registered name
      *
      * @function
@@ -19,7 +37,7 @@ export default Ember.Service.extend({
      * @returns {?rx/Observable} - The Rx.Observable object that is registered
      *          to the supplied streamName
      */
-    find( streamName ) {
+    findStream( streamName ) {
         for ( const name of Object.keys( streams ) ) {
             if ( name === streamName ) {
                 return streams[ name ];
@@ -40,17 +58,34 @@ export default Ember.Service.extend({
      *        first argument is a string
      * @returns {Boolean} - True unless an error is encountered
      */
-    register( streamsObjectOrName, observable ) {
+    registerStream( streamsObjectOrName, observable ) {
         if ( 'string' === Ember.typeOf( streamsObjectOrName ) && observable ) {
-            return this.registerStream( streamsObjectOrName, observable );
+            const streamName = streamsObjectOrName;
+
+            if ( streams.hasOwnProperty( streamName ) ) {
+                Ember.Logger.warn( `Stream "${streamName}" already exists` );
+                return false;
+            }
+
+            streams[ streamName ] = observable;
+
+            // Set up subscriptions for observers waiting for this named stream
+            if ( subscriptions.hasOwnProperty( streamName ) ) {
+                for ( const subscription of subscriptions[ streamName ] ) {
+                    observable.subscribe.apply( observable, subscription );
+                }
+
+                delete subscriptions[ streamName ];
+            }
+
+            return true;
         }
 
         if ( 'object' === Ember.typeOf( streamsObjectOrName ) ) {
-            for ( const name of Object.keys( streamsObjectOrName ) ) {
-                const okay = this.registerStream(
-                    name,
-                    streamsObjectOrName[ name ]
-                );
+            const streamsObject = streamsObjectOrName;
+
+            for ( const name of Object.keys( streamsObject ) ) {
+                const okay = this.registerStream( name, streamsObject[ name ] );
 
                 if ( !okay ) {
                     return false;
@@ -64,29 +99,11 @@ export default Ember.Service.extend({
     },
 
     /**
-     * Register an observable stream to the supplied name
+     * An alias to the ReactiveX library itself
      *
-     * @function
-     * @param {String} streamName - The name of the stream to register the
-     *        observable to
-     * @param {rx/Observable} observable - The observable object to register
-     * @returns {Boolean} - True unless an error is encountered
+     * @type {Object}
      */
-    registerStream( streamName, observable ) {
-        if ( streams.hasOwnProperty( streamName ) ) {
-            Ember.Logger.error( `Stream "${streamName}" already exists` );
-            return false;
-        }
-
-        streams[ streamName ] = observable;
-
-        // Set up subscriptions for observers waiting for this named stream
-        for ( const subscription of subscriptions[ streamName ] ) {
-            observable.subscribe.apply( observable, subscription );
-        }
-
-        return true;
-    },
+    Rx: window.Rx,
 
     /**
      * Attempts to subscribe an observer (or series of callbacks) to an
@@ -107,10 +124,10 @@ export default Ember.Service.extend({
      * @param {Function} [onCompleted] - A separate callback that is triggered
      *        when the onCompleted hook is fired from the observable (only valid
      *        if the first argument is a Function)
-     * @returns {undefinei}
+     * @returns {undefined}
      */
     subscribeTo( streamName, observerOrOnNext, onError, onCompleted ) {
-        const stream = this.find( streamName );
+        const stream = this.findStream( streamName );
 
         if ( stream ) {
             streams[ streamName ].subscribe(

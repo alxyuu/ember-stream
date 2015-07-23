@@ -8,8 +8,8 @@ module.exports = {
         this._super.included( app );
 
         app.import({
-            development: 'bower_components/rxjs/dist/rx.js',
-            production: 'bower_components/rxjs/dist/rx.min.js'
+            development: 'bower_components/rxjs/dist/rx.all.js',
+            production: 'bower_components/rxjs/dist/rx.all.min.js'
         });
     }
 };
