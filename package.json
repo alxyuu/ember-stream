@@ -15,7 +15,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/joshforisha/sl-eslint.git"
+    "url": "git://github.com/joshforisha/ember-stream.git"
   },
   "engines": {
     "node": ">= 0.10.0"
