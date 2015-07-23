@@ -48,6 +48,10 @@ There are two ways to call this method:
 - Pass in the `streamName` and at least one callback function
 - Pass in the `streamName` and an Rx.Observer object
 
+##### unregisterStream( streamName )
+
+Removes the named reference to the stream registered to `streamName`.
+
 ## Installation
 
 - `git clone` this repository

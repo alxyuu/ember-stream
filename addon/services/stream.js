@@ -98,6 +98,23 @@ export default Ember.Service.extend({
     },
 
     /**
+     * Remove a registered stream reference
+     *
+     * @function
+     * @param {String} streamName - The name of the stream to unregister
+     * @returns {Boolean} - True unless an error is encountered
+     */
+    unregisterStream( streamName ) {
+        if ( streams.hasOwnProperty( streamName ) ) {
+            delete streams[ streamName ];
+        } else {
+            Ember.Logger.warn( `No stream named "${streamName}" found` );
+        }
+
+        return true;
+    },
+
+    /**
      * Attempts to subscribe an observer (or series of callbacks) to an
      * observable stream
      *
