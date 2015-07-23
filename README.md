@@ -10,7 +10,7 @@ ember install ember-stream
 
 ### Stream Service
 
-The primary object available is the stream service, located at `/addon/services/stream.js`. You should inject this service onto your Ember objects:
+The primary object available is the stream service, located at `/addon/services/stream.js`. You should inject this service into your Ember objects:
 
 ```javascript
     streamService: Ember.inject.service( 'stream' ),
