@@ -1,7 +1,7 @@
 import Ember from 'ember';
 
-let streams = {};
-let subscriptions = {};
+const streams = {};
+const subscriptions = {};
 
 /**
  * A service used to register, lookup, and subscribe indirectly to Rx.Observable

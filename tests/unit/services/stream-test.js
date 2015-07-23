@@ -63,9 +63,12 @@ test( 'Subscription properly deferred until stream is registered', function( ass
         assert.ok( okay, 'Observer triggered successfully' );
     });
 
-    streamService.registerStream( 'test', streamService.createStream( observer => {
-        observer.onNext( true );
-    }));
+    streamService.registerStream(
+        'test',
+        streamService.createStream( observer => {
+            observer.onNext( true );
+        })
+    );
 
     streamService.unregisterStream( 'test' );
 });
