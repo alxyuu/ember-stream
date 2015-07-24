@@ -51,51 +51,50 @@ export default Ember.Service.extend({
      * Register an observable stream or streams to the supplied name(s)
      *
      * @function
-     * @param {Object|String} streamsObjectOrName - Either an object containing
-     *        key-value pairs of multiple stream definitions, or a single string
-     *        used to register the `observable` name to
-     * @param {rx/Observable} [stream] - A single observable object, if the
-     *        first argument is a string
+     * @param {String} streamName - The name to register an observable stream to
+     * @param {rx/Observable} stream - A single observable object
      * @returns {Boolean} - True unless an error is encountered
      */
-    registerStream( streamsObjectOrName, stream ) {
-        if ( 'string' === Ember.typeOf( streamsObjectOrName ) && stream ) {
-            const streamName = streamsObjectOrName;
-
-            if ( streams.hasOwnProperty( streamName ) ) {
-                Ember.Logger.warn( `Stream "${streamName}" already exists` );
-            }
-
-            streams[ streamName ] = stream;
-
-            // Set up subscriptions for observers waiting for this named stream
-            if ( subscriptions.hasOwnProperty( streamName ) ) {
-                for ( const subscription of subscriptions[ streamName ] ) {
-                    stream.subscribe.apply( stream, subscription.observer );
-                    subscription.deferred.resolve();
-                }
-
-                delete subscriptions[ streamName ];
-            }
-
-            return true;
+    registerStream( streamName, stream ) {
+        if ( streams.hasOwnProperty( streamName ) ) {
+            Ember.Logger.warn( `Stream "${streamName}" already exists` );
         }
 
-        if ( 'object' === Ember.typeOf( streamsObjectOrName ) ) {
-            const streamsObject = streamsObjectOrName;
+        streams[ streamName ] = stream;
 
-            for ( const name of Object.keys( streamsObject ) ) {
-                const okay = this.registerStream( name, streamsObject[ name ] );
-
-                if ( !okay ) {
-                    return false;
-                }
+        // Set up subscriptions for observers waiting for this named stream
+        if ( subscriptions.hasOwnProperty( streamName ) ) {
+            for ( const subscription of subscriptions[ streamName ] ) {
+                stream.subscribe.apply( stream, subscription.observer );
+                subscription.deferred.resolve();
             }
 
-            return true;
+            delete subscriptions[ streamName ];
         }
 
-        return false;
+        return true;
+    },
+
+    /**
+     * Register multiple observable streams by passing in a key-value hash
+     *
+     * @function
+     * @param {Object} streamsObject - A key-value hash, where each key is the
+     *        name to register a stream to, and each value is the stream object
+     * @returns {Boolean} - True unless an error is encountered
+     */
+    registerStreams( streamsObject ) {
+        const streamsObject = streamsObjectOrName;
+
+        for ( const name of Object.keys( streamsObject ) ) {
+            const okay = this.registerStream( name, streamsObject[ name ] );
+
+            if ( !okay ) {
+                return false;
+            }
+        }
+
+        return true;
     },
 
     /**
@@ -110,6 +109,23 @@ export default Ember.Service.extend({
             delete streams[ streamName ];
         } else {
             Ember.Logger.warn( `No stream named "${streamName}" found` );
+        }
+
+        return true;
+    },
+
+    /**
+     * Remove multiple registered streams
+     *
+     * @function
+     * @param {String[]} streamNames - The names of the streams to unregister
+     * @returns {Boolean} - True unless an error is encountered
+     */
+    unregisterStreams( streamNames ) {
+        for ( const streamName of streamNames ) {
+            if ( !this.unregisterStream( streamName ) ) {
+                return false;
+            }
         }
 
         return true;

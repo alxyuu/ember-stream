@@ -22,28 +22,27 @@ The primary object available is the stream service, located at `/addon/services/
 
 This service has the following methods available:
 
-##### Rx
+##### .Rx
 
 This is an alias to the main Rx library, so that any object using the streamService has direct access to the native Reactive functionality.
 
-##### createStream( func )
+##### .createStream( func )
 
 Create an observable stream from a function definition. This currently just wraps *Rx.Observable.create()*, but in the future will support additional Ember-friendly patterns.
 
-##### findStream( streamName )
+##### .findStream( streamName )
 
 Lookup and return a named stream registered on the streamService.
 
-##### registerStream( streamsObjectOrName, stream )
+##### .registerStream( streamName, stream )
 
 Register an observable stream to a referenceable name. Any observers that are awaiting subscription to this stream will be subscribed at this point.
 
-There are two ways to call this method:
+##### .registerStreams( streamsObject )
 
-- Pass in a single name and stream instance
-- Pass in a key-value hash, where each key is the stream name and its value is the stream instance
+Register multiple streams to their own names. The `streamsObject` is a key-value hash, where each key is the stream name, and each value is the stream instance.
 
-##### subscribeTo( streamName, observerOrOnNext, onError, onCompleted )
+##### .subscribeTo( streamName, observerOrOnNext, onError, onCompleted )
 
 Attempt to subscribe an observer or series of callbacks to an observable stream.
 
@@ -56,9 +55,13 @@ There are two ways to call this method:
 - Pass in the `streamName` and at least one callback function
 - Pass in the `streamName` and an Rx.Observer object
 
-##### unregisterStream( streamName )
+##### .unregisterStream( streamName )
 
-Removes the named reference to the stream registered to `streamName`.
+Remove the named reference to the stream registered to `streamName`.
+
+##### .unregisterStreams( streamNames )
+
+Unregister multiple streams by passing in their names in an array `streamNames`.
 
 ## Installation
 
