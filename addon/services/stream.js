@@ -71,7 +71,8 @@ export default Ember.Service.extend({
             // Set up subscriptions for observers waiting for this named stream
             if ( subscriptions.hasOwnProperty( streamName ) ) {
                 for ( const subscription of subscriptions[ streamName ] ) {
-                    stream.subscribe.apply( stream, subscription );
+                    stream.subscribe.apply( stream, subscription.observer );
+                    subscription.deferred.resolve();
                 }
 
                 delete subscriptions[ streamName ];
@@ -118,10 +119,11 @@ export default Ember.Service.extend({
      * Attempts to subscribe an observer (or series of callbacks) to an
      * observable stream
      *
-     * If the stream is not registered, the observer (or callbacks) are saved in
-     * order to subscribe whenever the stream is property registered.
+     * If the stream is registered, a subscription object is returned from the
+     * internal observable's subscribe() call.
      *
-     * @todo Return either a promise or the subscription object
+     * If the stream is not registered, the subscription is deferred until the
+     * stream is registered, and an RSVP.deferred object is returned.
      *
      * @function
      * @param {String} streamName - The name of the stream to subscribe to
@@ -133,26 +135,29 @@ export default Ember.Service.extend({
      * @param {Function} [onCompleted] - A separate callback that is triggered
      *        when the onCompleted hook is fired from the observable (only valid
      *        if the first argument is a Function)
-     * @returns {undefined}
+     * @returns {Object} - Either a subscription object or a deferred object
      */
     subscribeTo( streamName, observerOrOnNext, onError, onCompleted ) {
         const stream = this.findStream( streamName );
 
         if ( stream ) {
-            streams[ streamName ].subscribe(
+            return streams[ streamName ].subscribe(
                 observerOrOnNext, onError, onCompleted
             );
-
-            return;
         }
 
         if ( !subscriptions.hasOwnProperty( streamName ) ) {
             subscriptions[ streamName ] = [];
         }
 
-        subscriptions[ streamName ].push([
-            observerOrOnNext, onError, onCompleted
-        ]);
+        const deferred = Ember.RSVP.defer();
+
+        subscriptions[ streamName ].push({
+            deferred,
+            observer: [ observerOrOnNext, onError, onCompleted ]
+        });
+
+        return deferred.promise;
     }
 
 });

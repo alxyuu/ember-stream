@@ -45,7 +45,11 @@ There are two ways to call this method:
 
 ##### subscribeTo( streamName, observerOrOnNext, onError, onCompleted )
 
-Attempt to subscribe an observer or series of callbacks to an observable stream. If no observer is registered under the `streamName`, then the subscription will not be setup until the stream is registered.
+Attempt to subscribe an observer or series of callbacks to an observable stream.
+
+If a stream is registered with the `streamName`, then the subscription is setup and an object is returned.
+
+If no observer is registered with the `streamName`, then the subscription will be deferred until the stream is registered, and a promise is returned.
 
 There are two ways to call this method:
 

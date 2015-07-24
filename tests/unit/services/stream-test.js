@@ -1,3 +1,4 @@
+import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 
 moduleFor( 'service:stream', 'Unit | Service | stream' );
@@ -57,11 +58,18 @@ test( 'subscribeTo() properly subscribes an observer to a stream', function( ass
 });
 
 test( 'Subscription properly deferred until stream is registered', function( assert ) {
+    assert.expect( 2 );
+
     const streamService = this.subject();
 
-    streamService.subscribeTo( 'test', okay => {
+    const testPromise = streamService.subscribeTo( 'test', okay => {
         assert.ok( okay, 'Observer triggered successfully' );
     });
+
+    assert.ok(
+        testPromise instanceof Ember.RSVP.Promise,
+        'Received a Promise from subscribeTo call'
+    );
 
     streamService.registerStream(
         'test',
