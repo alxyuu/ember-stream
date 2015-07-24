@@ -84,8 +84,6 @@ export default Ember.Service.extend({
      * @returns {Boolean} - True unless an error is encountered
      */
     registerStreams( streamsObject ) {
-        const streamsObject = streamsObjectOrName;
-
         for ( const name of Object.keys( streamsObject ) ) {
             const okay = this.registerStream( name, streamsObject[ name ] );
 

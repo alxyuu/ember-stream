@@ -39,7 +39,7 @@ export default Ember.Component.extend({
                 .timeInterval()
                 .filter( x => x.interval < 250 );
 
-            streamService.registerStream({ clickStream, doubleClickStream });
+            streamService.registerStreams({ clickStream, doubleClickStream });
         }
     )
 
