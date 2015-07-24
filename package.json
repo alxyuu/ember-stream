@@ -9,7 +9,7 @@
   "scripts": {
     "build": "ember build",
     "lint": "node_modules/.bin/sl-eslint",
-    "lint-all": "node_modules/.bin/sl-eslint addon app blueprints tests",
+    "lint-all": "node_modules/.bin/sl-eslint addon app tests",
     "start": "ember server",
     "test": "ember try:testall"
   },
