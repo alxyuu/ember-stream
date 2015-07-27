@@ -26,8 +26,8 @@ export default Ember.Service.extend({
      * @returns {Boolean} - True unless an error is encountered
      */
     connectSubscriptions( streamName ) {
-        const stream = Ember.get( this.get( 'streams' ), streamName );
-        const subject = Ember.get( this.get( 'subjects' ), streamName );
+        const stream = this.get( 'streams' )[ streamName ];
+        const subject = this.get( 'subjects' )[ streamName ];
 
         if ( stream && subject ) {
             stream.subscribe(
@@ -92,14 +92,14 @@ export default Ember.Service.extend({
             const streams = this.get( 'streams' );
 
             if ( streams.hasOwnProperty( streamName ) ) {
-                resolve( Ember.get( streams, streamName ) );
+                resolve( streams[ streamName ] );
                 return;
             }
 
             this.get( 'streamRegistrations' ).subscribe(
                 function( registeredStreamName ) {
                     if ( registeredStreamName === streamName ) {
-                        resolve( Ember.get( streams, streamName ) );
+                        resolve( streams[ streamName ] );
                         this.dispose();
                     }
                 }
@@ -134,7 +134,7 @@ export default Ember.Service.extend({
             this.destroy( streamName );
         }
 
-        Ember.set( streams, streamName, stream );
+        streams[ streamName ] = stream;
         this.get( 'streamRegistrations' ).onNext( streamName );
 
         this.connectSubscriptions( streamName );
