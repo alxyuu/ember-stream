@@ -1,6 +1,6 @@
 {
   "name": "ember-stream",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Observable streams addon for Ember CLI",
   "directories": {
     "doc": "doc",
