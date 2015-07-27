@@ -49,6 +49,17 @@ export default Ember.Service.extend({
     },
 
     /**
+     * Create an observable stream from a function definition
+     *
+     * @function
+     * @param {Function} subscribe - The stream observer handler
+     * @returns {rx/Observable} - The created observable stream
+     */
+    create( subscribe ) {
+        return window.Rx.Observable.create( subscribe );
+    },
+
+    /**
      * Create and register an observable from a function definition
      *
      * @function
@@ -56,8 +67,9 @@ export default Ember.Service.extend({
      * @param {Function} subscribe - The stream observer handler
      * @returns {rx/Observable} - The created observable stream
      */
-    create( streamName, subscribe ) {
-        const stream = window.Rx.Observable.create( subscribe );
+    define( streamName, subscribe ) {
+        const stream = this.create( subscribe );
+
         this.register( streamName, stream );
 
         return stream;

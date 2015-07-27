@@ -21,11 +21,21 @@ test( 'find() creates and returns a promise', function( assert ) {
     );
 });
 
-test( 'create() creates and registers an observable stream', function( assert ) {
+test( 'create() creates an observable stream', function( assert ) {
+    const streamService = this.subject();
+    const stream = streamService.create( () => {} );
+
+    assert.ok(
+        stream instanceof streamService.Rx.AnonymousObservable,
+        'Created object is an observable'
+    );
+});
+
+test( 'define() creates and registers an observable stream', function( assert ) {
     assert.expect( 2 );
 
     const streamService = this.subject();
-    const stream = streamService.create( 'test', () => {} );
+    const stream = streamService.define( 'test', () => {} );
 
     assert.ok(
         stream instanceof streamService.Rx.AnonymousObservable,
@@ -62,7 +72,7 @@ test( 'Registering and finding observables are supported', function( assert ) {
 test( 'subscribe() properly subscribes handlers to a stream', function( assert ) {
     const streamService = this.subject();
 
-    streamService.create( 'test', ( observer ) => {
+    streamService.define( 'test', ( observer ) => {
         observer.onNext( true );
     });
 

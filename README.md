@@ -26,9 +26,13 @@ This service has the following methods available:
 
 This is an alias to the main Rx library, so that any object using the streamService has direct access to the native Reactive functionality.
 
-##### .create( streamName, subscribe )
+##### .create( subscribe )
 
-Create and register an observable stream from a subscribe function definition.
+Create an observable stream from a subscription handler function.
+
+##### .define( streamName, subscribe )
+
+Create and register an observable stream from a subscription handler function.
 
 ##### .destroy( streamName )
 

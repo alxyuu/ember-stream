@@ -29,7 +29,7 @@ export default Ember.Component.extend({
         function() {
             const streamService = this.get( 'streamService' );
 
-            const clickStream = streamService.create( 'click', ( observer ) => {
+            const clickStream = streamService.define( 'click', ( observer ) => {
                 this.$().bind( 'click', ( event ) => {
                     observer.onNext( event );
                 });
