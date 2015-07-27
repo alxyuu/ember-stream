@@ -5,10 +5,6 @@ export default Ember.Controller.extend({
     // -------------------------------------------------------------------------
     // Dependencies
 
-    needs: [
-        'index'
-    ],
-
     // -------------------------------------------------------------------------
     // Attributes
 
@@ -21,25 +17,12 @@ export default Ember.Controller.extend({
     // -------------------------------------------------------------------------
     // Properties
 
-    streamService: Ember.inject.service( 'stream' ),
+    clickTimestamp: null,
+
+    doubleClickTimestamp: null
 
     // -------------------------------------------------------------------------
     // Observers
-
-    initialize: Ember.on(
-        'init',
-        function() {
-            const streamService = this.get( 'streamService' );
-
-            streamService.subscribe( 'click', () => {
-                this.get( 'controllers.index' ).set( 'clickTimestamp', Date.now() );
-            });
-
-            streamService.subscribe( 'doubleClick', () => {
-                this.get( 'controllers.index' ).set( 'doubleClickTimestamp', Date.now() );
-            });
-        }
-    )
 
     // -------------------------------------------------------------------------
     // Methods

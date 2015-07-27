@@ -29,17 +29,18 @@ export default Ember.Component.extend({
         function() {
             const streamService = this.get( 'streamService' );
 
-            const clickStream = streamService.createStream( observer => {
-                this.$().bind( 'click', event => {
+            const clickStream = streamService.create( 'click', ( observer ) => {
+                this.$().bind( 'click', ( event ) => {
                     observer.onNext( event );
                 });
             });
 
-            const doubleClickStream = clickStream
-                .timeInterval()
-                .filter( x => x.interval < 250 );
-
-            streamService.registerStreams({ clickStream, doubleClickStream });
+            streamService.register(
+                'doubleClick',
+                clickStream
+                    .timeInterval()
+                    .filter( x => x.interval < 250 )
+            );
         }
     )
 

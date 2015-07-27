@@ -17,7 +17,7 @@ ember install ember-stream
 The primary object available is the stream service, located at `/addon/services/stream.js`. You should inject this service into your Ember objects:
 
 ```javascript
-    streamService: Ember.inject.service( 'stream' ),
+streamService: Ember.inject.service( 'stream' ),
 ```
 
 This service has the following methods available:
@@ -26,42 +26,28 @@ This service has the following methods available:
 
 This is an alias to the main Rx library, so that any object using the streamService has direct access to the native Reactive functionality.
 
-##### .createStream( func )
+##### .create( streamName, subscribe )
 
-Create an observable stream from a function definition. This currently just wraps *Rx.Observable.create()*, but in the future will support additional Ember-friendly patterns.
+Create and register an observable stream from a subscribe function definition.
 
-##### .findStream( streamName )
+##### .destroy( streamName )
 
-Lookup and return a named stream registered on the streamService.
+Destroy a registered observable stream from the service.
 
-##### .registerStream( streamName, stream )
+##### .find( streamName )
 
-Register an observable stream to a referenceable name. Any observers that are awaiting subscription to this stream will be subscribed at this point.
+Lookup a stream by its registered name, and receive a promise that is fulfilled whenever the matching stream is registered.
 
-##### .registerStreams( streamsObject )
+##### .register( streamNameOrHash, stream )
 
-Register multiple streams to their own names. The `streamsObject` is a key-value hash, where each key is the stream name, and each value is the stream instance.
+Register a stream, or streams, to the service, in one of two formats:
 
-##### .subscribeTo( streamName, observerOrOnNext, onError, onCompleted )
+- Pass in a string value and a stream instance to register a single stream
+- Pass in a key-value hash, where each key is a stream name and each value its stream instance
 
-Attempt to subscribe an observer or series of callbacks to an observable stream.
+##### .subscribe( streamName, onNext, onError, onCompleted )
 
-If a stream is registered with the `streamName`, then the subscription is setup and an object is returned.
-
-If no observer is registered with the `streamName`, then the subscription will be deferred until the stream is registered, and a promise is returned.
-
-There are two ways to call this method:
-
-- Pass in the `streamName` and at least one callback function
-- Pass in the `streamName` and an Rx.Observer object
-
-##### .unregisterStream( streamName )
-
-Remove the named reference to the stream registered to `streamName`.
-
-##### .unregisterStreams( streamNames )
-
-Unregister multiple streams by passing in their names in an array `streamNames`.
+Set up a subscription to a stream named with `streamName`, using the given handler functions.
 
 ## Installation
 

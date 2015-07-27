@@ -1,10 +1,8 @@
 import Ember from 'ember';
 
-const streams = {};
-const subscriptions = {};
-
 /**
- * A service used to register, lookup, and subscribe indirectly to Rx.Observable
+ * A service used to register, lookup, and subscribe indirectly to observables,
+ * or "streams", and interact with their observing subjects
  *
  * @module
  * @augments ember/Service
@@ -12,166 +10,187 @@ const subscriptions = {};
 export default Ember.Service.extend({
 
     /**
-     * An alias to the ReactiveX library itself
+     * An alias to the RxJS library itself
      *
      * @type {Object}
      */
     Rx: window.Rx,
 
     /**
-     * Create an observable stream from a function definition
+     * Connect a stream to its subscription subjects
      *
+     * @private
      * @function
-     * @param {Function} func - The function to create the stream from
-     * @returns {rx/Observable} - The created observable stream
-     */
-    createStream( func ) {
-        return this.Rx.Observable.create( func );
-    },
-
-    /**
-     * Lookup an observable stream by its registered name
-     *
-     * @function
-     * @param {String} streamName - The name of the stream to attempt lookup on
-     * @returns {?rx/Observable} - The Rx.Observable object that is registered
-     *          to the supplied streamName
-     */
-    findStream( streamName ) {
-        for ( const name of Object.keys( streams ) ) {
-            if ( name === streamName ) {
-                return streams[ name ];
-            }
-        }
-
-        return null;
-    },
-
-    /**
-     * Register an observable stream or streams to the supplied name(s)
-     *
-     * @function
-     * @param {String} streamName - The name to register an observable stream to
-     * @param {rx/Observable} stream - A single observable object
+     * @param {String} streamName - The name of the stream to connect to its
+     *        subscription subjects
      * @returns {Boolean} - True unless an error is encountered
      */
-    registerStream( streamName, stream ) {
-        if ( streams.hasOwnProperty( streamName ) ) {
-            Ember.Logger.warn( `Stream "${streamName}" already exists` );
-        }
+    connectSubscriptions( streamName ) {
+        const stream = Ember.get( this.get( 'streams' ), streamName );
+        const subject = Ember.get( this.get( 'subjects' ), streamName );
 
-        streams[ streamName ] = stream;
+        if ( stream && subject ) {
+            stream.subscribe(
+                ( value ) => {
+                    subject.onNext( value );
+                },
 
-        // Set up subscriptions for observers waiting for this named stream
-        if ( subscriptions.hasOwnProperty( streamName ) ) {
-            for ( const subscription of subscriptions[ streamName ] ) {
-                stream.subscribe.apply( stream, subscription.observer );
-                subscription.deferred.resolve();
-            }
+                ( error ) => {
+                    subject.onError( error );
+                },
 
-            delete subscriptions[ streamName ];
-        }
-
-        return true;
-    },
-
-    /**
-     * Register multiple observable streams by passing in a key-value hash
-     *
-     * @function
-     * @param {Object} streamsObject - A key-value hash, where each key is the
-     *        name to register a stream to, and each value is the stream object
-     * @returns {Boolean} - True unless an error is encountered
-     */
-    registerStreams( streamsObject ) {
-        for ( const name of Object.keys( streamsObject ) ) {
-            const okay = this.registerStream( name, streamsObject[ name ] );
-
-            if ( !okay ) {
-                return false;
-            }
-        }
-
-        return true;
-    },
-
-    /**
-     * Remove a registered stream reference
-     *
-     * @function
-     * @param {String} streamName - The name of the stream to unregister
-     * @returns {Boolean} - True unless an error is encountered
-     */
-    unregisterStream( streamName ) {
-        if ( streams.hasOwnProperty( streamName ) ) {
-            delete streams[ streamName ];
-        } else {
-            Ember.Logger.warn( `No stream named "${streamName}" found` );
-        }
-
-        return true;
-    },
-
-    /**
-     * Remove multiple registered streams
-     *
-     * @function
-     * @param {String[]} streamNames - The names of the streams to unregister
-     * @returns {Boolean} - True unless an error is encountered
-     */
-    unregisterStreams( streamNames ) {
-        for ( const streamName of streamNames ) {
-            if ( !this.unregisterStream( streamName ) ) {
-                return false;
-            }
-        }
-
-        return true;
-    },
-
-    /**
-     * Attempts to subscribe an observer (or series of callbacks) to an
-     * observable stream
-     *
-     * If the stream is registered, a subscription object is returned from the
-     * internal observable's subscribe() call.
-     *
-     * If the stream is not registered, the subscription is deferred until the
-     * stream is registered, and an RSVP.deferred object is returned.
-     *
-     * @function
-     * @param {String} streamName - The name of the stream to subscribe to
-     * @param {rx/Observer|Function} observerOrOnNext - Either an Rx.Observer
-     *        object, or a callback function mapping to the onNext hook
-     * @param {Function} [onError] - A separate callback that is triggered when
-     *        the onError hook is fired from the observable (only valid if the
-     *        first argument is a Function)
-     * @param {Function} [onCompleted] - A separate callback that is triggered
-     *        when the onCompleted hook is fired from the observable (only valid
-     *        if the first argument is a Function)
-     * @returns {Object} - Either a subscription object or a deferred object
-     */
-    subscribeTo( streamName, observerOrOnNext, onError, onCompleted ) {
-        const stream = this.findStream( streamName );
-
-        if ( stream ) {
-            return streams[ streamName ].subscribe(
-                observerOrOnNext, onError, onCompleted
+                () => {
+                    subject.onCompleted();
+                }
             );
         }
 
-        if ( !subscriptions.hasOwnProperty( streamName ) ) {
-            subscriptions[ streamName ] = [];
+        return true;
+    },
+
+    /**
+     * Create and register an observable from a function definition
+     *
+     * @function
+     * @param {String} streamName - The name that the stream is registered on
+     * @param {Function} subscribe - The stream observer handler
+     * @returns {rx/Observable} - The created observable stream
+     */
+    create( streamName, subscribe ) {
+        const stream = window.Rx.Observable.create( subscribe );
+        this.register( streamName, stream );
+
+        return stream;
+    },
+
+    /**
+     * Destroy a registered observable
+     *
+     * @function
+     * @param {String} streamName - The name of the stream to destroy
+     * @returns {Boolean} - True unless an error is encountered
+     */
+    destroy( streamName ) {
+        const streams = this.get( 'streams' );
+
+        if ( streams.hasOwnProperty( streamName ) ) {
+            delete streams[ streamName ];
         }
 
-        const deferred = Ember.RSVP.defer();
+        return true;
+    },
 
-        subscriptions[ streamName ].push({
-            deferred,
-            observer: [ observerOrOnNext, onError, onCompleted ]
+    /**
+     * Lookup a stream by its registered name, and receive a promise
+     *
+     * @function
+     * @param {String} streamName - The name of the stream to attempt lookup on
+     * @returns {ember/RSVP/Promise} - Resolves with the observable instance
+     */
+    find( streamName ) {
+        return new Ember.RSVP.Promise( ( resolve ) => {
+            const streams = this.get( 'streams' );
+
+            if ( streams.hasOwnProperty( streamName ) ) {
+                resolve( Ember.get( streams, streamName ) );
+                return;
+            }
+
+            this.get( 'streamRegistrations' ).subscribe(
+                function( registeredStreamName ) {
+                    if ( registeredStreamName === streamName ) {
+                        resolve( Ember.get( streams, streamName ) );
+                        this.dispose();
+                    }
+                }
+            );
         });
+    },
 
-        return deferred.promise;
+    /**
+     * Register an observable stream to the supplied `streamName`
+     *
+     * @function
+     * @param {String|Object} streamNameOrHash - Either the name to register a
+     *        single stream to (the second argument), or a key-value hash where
+     *        each key is the streamName and each value the stream instance
+     * @param {rx/Observable} [stream] - The singular stream instance, if the
+     *        first argument is a string representing its name
+     * @returns {Boolean} - True unless an error is encountered
+     */
+    register( streamNameOrHash, stream ) {
+        if ( 'object' === Ember.typeOf( streamNameOrHash ) ) {
+            for ( const streamName of Object.keys( streamNameOrHash ) ) {
+                this.register( streamName, streamNameOrHash[ streamName ] );
+            }
+
+            return true;
+        }
+
+        const streamName = streamNameOrHash;
+        const streams = this.get( 'streams' );
+
+        if ( streams.hasOwnProperty( streamName ) ) {
+            this.destroy( streamName );
+        }
+
+        Ember.set( streams, streamName, stream );
+        this.get( 'streamRegistrations' ).onNext( streamName );
+
+        this.connectSubscriptions( streamName );
+
+        return true;
+    },
+
+    /**
+     * A key-value hash for registered observable streams
+     *
+     * @private
+     * @type {Object}
+     */
+    streams: {},
+
+    /**
+     * A subject used to emit registrations on the streams object
+     *
+     * @private
+     * @type {rx/Subject}
+     */
+    streamRegistrations: new window.Rx.Subject(),
+
+    /**
+     * A key-value hash of subjects setup to listen to registered streams
+     *
+     * @private
+     * @type {Object}
+     */
+    subjects: {},
+
+    /**
+     * Subscribe observer handlers to a stream with the specified `streamName`
+     *
+     * @function
+     * @param {String} streamName - The name of the stream to subscribe to
+     * @param {Function} onNext - onNext observer handler
+     * @param {Function} [onError] - onError observer handler
+     * @param {Function} [onCompleted] - onCompleted observer handler
+     * @returns {rx/InnerSubscription} - A subscription object generated by
+     *          the subscribe action
+     */
+    subscribe( streamName, onNext, onError, onCompleted ) {
+        const subjects = this.get( 'subjects' );
+
+        if ( !subjects.hasOwnProperty( streamName ) ) {
+            subjects[ streamName ] = new window.Rx.Subject();
+        }
+
+        const subscription = subjects[ streamName ].subscribe(
+            onNext, onError, onCompleted
+        );
+
+        this.connectSubscriptions( streamName );
+
+        return subscription;
     }
 
 });
