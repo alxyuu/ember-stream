@@ -30,19 +30,7 @@ export default Ember.Service.extend({
         const subject = this.get( 'subjects' )[ streamName ];
 
         if ( stream && subject ) {
-            stream.subscribe(
-                ( value ) => {
-                    subject.onNext( value );
-                },
-
-                ( error ) => {
-                    subject.onError( error );
-                },
-
-                () => {
-                    subject.onCompleted();
-                }
-            );
+            stream.subscribe( subject );
         }
 
         return true;
