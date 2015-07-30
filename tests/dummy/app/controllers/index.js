@@ -1,7 +1,7 @@
 import Ember from 'ember';
-import streamEnabled from 'ember-stream/mixins/stream-enabled';
+import StreamEnabled from 'ember-stream/mixins/stream-enabled';
 
-export default Ember.Controller.extend( streamEnabled, {
+export default Ember.Controller.extend( StreamEnabled, {
 
     // -------------------------------------------------------------------------
     // Dependencies

@@ -1,9 +1,9 @@
 import Ember from 'ember';
-import streamEnabled from 'ember-stream/mixins/stream-enabled';
+import StreamEnabled from 'ember-stream/mixins/stream-enabled';
 
 const Rx = window.Rx;
 
-export default Ember.Component.extend( streamEnabled, {
+export default Ember.Component.extend( StreamEnabled, {
 
     // -------------------------------------------------------------------------
     // Dependencies
