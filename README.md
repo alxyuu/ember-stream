@@ -4,7 +4,7 @@
 [![Ember CLI Version](https://img.shields.io/badge/ember--cli-1.13.1-d84a32.svg?style=flat-square)](http://www.ember-cli.com)
 [![Ember Version](https://img.shields.io/badge/ember-1.13.3-e1563f.svg?style=flat-square)](http://emberjs.com)
 
-Observable streams addon for Ember CLI projects, using [ReactiveX](http://reactivex.io) ([RxJS](https://github.com/Reactive-Extensions/RxJS)).
+Observable streams addon for Ember, using [ReactiveX](http://reactivex.io) ([RxJS](https://github.com/Reactive-Extensions/RxJS)).
 
 ## Use in Ember CLI
 
@@ -12,46 +12,39 @@ Observable streams addon for Ember CLI projects, using [ReactiveX](http://reacti
 ember install ember-stream
 ```
 
-### Stream Service
+### Mixin: StreamEnabled (mixins/stream-enabled)
 
-The primary object available is the stream service, located at `/addon/services/stream.js`. You should inject this service into your Ember objects:
+This mixin supplies the following properties to its host object:
 
-```javascript
-streamService: Ember.inject.service( 'stream' ),
-```
+##### stream
+
+An instantiated stream object, outlined below; only created if a `streamName` property is set at initialization.
+
+The `stream` is also automatically *disposed* of when this object's `willDestroy` or `willDestroyElement` hooks are triggered.
+
+##### streamName
+
+A string to register this object's `stream` to. This value is used in the streamService's *send* method.
+
+##### streamService
+
+The injected streamService, outlined below.
+
+### Service: Stream (services/stream)
 
 This service has the following methods available:
 
-##### .Rx
+##### create( streamName )
 
-This is an alias to the main Rx library, so that any object using the streamService has direct access to the native Reactive functionality.
+Create a new stream with the supplied `streamName`, and return it. This object will have a few useful properties of its own:
 
-##### .create( subscribe )
+- *name* - The registered string name of the stream
+- *on*( actionName, handler ) - Call to set up an observer `handler` function for the specified `actionName`; any data passed on through the action using *send* will be received by the `handler`
+- *subject* - The underlying Rx/Subject instance representing the low-level observable/observer functionality
 
-Create an observable stream from a subscription handler function.
+##### send( streamName, action, data )
 
-##### .define( streamName, subscribe )
-
-Create and register an observable stream from a subscription handler function.
-
-##### .destroy( streamName )
-
-Destroy a registered observable stream from the service.
-
-##### .find( streamName )
-
-Lookup a stream by its registered name, and receive a promise that is fulfilled whenever the matching stream is registered.
-
-##### .register( streamNameOrHash, stream )
-
-Register a stream, or streams, to the service, in one of two formats:
-
-- Pass in a string value and a stream instance to register a single stream
-- Pass in a key-value hash, where each key is a stream name and each value its stream instance
-
-##### .subscribe( streamName, onNext, onError, onCompleted )
-
-Set up a subscription to a stream named with `streamName`, using the given handler functions.
+Send the stream registered with `streamName` a message named `action` (string), along with optional `data`.
 
 ## Installation
 

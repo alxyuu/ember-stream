@@ -1,6 +1,9 @@
 import Ember from 'ember';
+import streamEnabled from 'ember-stream/mixins/stream-enabled';
 
-export default Ember.Component.extend({
+const Rx = window.Rx;
+
+export default Ember.Component.extend( streamEnabled, {
 
     // -------------------------------------------------------------------------
     // Dependencies
@@ -19,7 +22,7 @@ export default Ember.Component.extend({
     // -------------------------------------------------------------------------
     // Properties
 
-    streamService: Ember.inject.service( 'stream' ),
+    parentStreamName: null,
 
     // -------------------------------------------------------------------------
     // Observers
@@ -28,19 +31,19 @@ export default Ember.Component.extend({
         'didInsertElement',
         function() {
             const streamService = this.get( 'streamService' );
+            const parentStreamName = this.get( 'parentStreamName' );
 
-            const clickStream = streamService.define( 'click', ( observer ) => {
-                this.$().bind( 'click', ( event ) => {
-                    observer.onNext( event );
-                });
+            const clickStream = Rx.Observable.fromEvent( this.$()[ 0 ], 'click' );
+
+            clickStream.subscribe( ( event ) => {
+                streamService.send( parentStreamName, 'click', event );
             });
 
-            streamService.register(
-                'doubleClick',
-                clickStream
-                    .timeInterval()
-                    .filter( x => x.interval < 250 )
-            );
+            clickStream.timeInterval()
+                .filter( x => x.interval < 250 )
+                .subscribe( ( event ) => {
+                    streamService.send( parentStreamName, 'doubleClick', event );
+                });
         }
     )
 
