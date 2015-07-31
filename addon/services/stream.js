@@ -33,7 +33,6 @@ export default Ember.Service.extend({
         };
 
         stream.subject.subscribeOnCompleted( () => {
-            stream.subject.dispose();
             Ember.set( this.get( 'streams' ), streamName, null );
         });
 

@@ -65,6 +65,7 @@ export default Ember.Mixin.create({
 
             if ( stream ) {
                 stream.subject.onCompleted();
+                stream.subject.dispose();
             }
         }
     )
