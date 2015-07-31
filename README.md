@@ -1,8 +1,8 @@
 # Ember Stream
 
 [![NPM Version](https://img.shields.io/npm/v/ember-stream.svg?style=flat-square)](https://www.npmjs.com/package/ember-stream)
-[![Ember CLI Version](https://img.shields.io/badge/ember--cli-1.13.1-d84a32.svg?style=flat-square)](http://www.ember-cli.com)
-[![Ember Version](https://img.shields.io/badge/ember-1.13.3-e1563f.svg?style=flat-square)](http://emberjs.com)
+[![Ember CLI Version](https://img.shields.io/badge/ember--cli-v1.13.1-d84a32.svg?style=flat-square)](http://www.ember-cli.com)
+[![Ember Version](https://img.shields.io/badge/ember-v1.13.3-e1563f.svg?style=flat-square)](http://emberjs.com)
 
 Observable streams addon for Ember, using [ReactiveX](http://reactivex.io) ([RxJS](https://github.com/Reactive-Extensions/RxJS)).
 
@@ -36,7 +36,7 @@ This service has the following methods available:
 
 ##### create( streamName )
 
-Create a new stream with the supplied `streamName`, and return it. This object will have a few useful properties of its own:
+Create and receive a new stream object with the supplied `streamName`. This object has the following properties:
 
 - *name* - The registered string name of the stream
 - *on*( actionName, handler ) - Call to set up an observer `handler` function for the specified `actionName`; any data passed on through the action using *send* will be received by the `handler`
