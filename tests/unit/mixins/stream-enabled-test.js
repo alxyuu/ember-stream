@@ -8,14 +8,12 @@ module( 'Unit | Mixin | stream enabled', {
     ]
 });
 
-test( 'Stream service is bound', function() {
+test( 'Stream service is bound', function( assert ) {
     const StreamEnabledObject = Ember.Object.extend( StreamEnabledMixin );
-    const subject = StreamEnabledObject.create(); // ERROR!
+    const subject = StreamEnabledObject.create();
 
-    /*
     assert.ok(
-        subject.get( 'streamService' ),
+        subject.get( 'streamService' ), // ERROR!
         'streamService property is set'
     );
-    */
 });
