@@ -1,82 +1,51 @@
 import Ember from 'ember';
 import { moduleFor, test } from 'ember-qunit';
 
+const Rx = window.Rx;
+
 moduleFor( 'service:stream', 'Unit | Service | stream' );
 
-test( 'Rx is available', function( assert ) {
+test( 'create() creates a stream object', function( assert ) {
     const streamService = this.subject();
+    const streamName = 'test';
+    const stream = streamService.create( streamName );
 
     assert.ok(
-        streamService.Rx,
-        'Rx is a valid property on the service'
+        'object' === Ember.typeOf( stream ),
+        'Received an object'
+    );
+
+    assert.ok(
+        'string' === Ember.typeOf( stream.name ),
+        'stream.name is a string'
+    );
+
+    assert.equal(
+        stream.name,
+        streamName,
+        'stream.name is the expected value'
+    );
+
+    assert.ok(
+        'function' === Ember.typeOf( stream.on ),
+        'stream.on is a function'
+    );
+
+    assert.ok(
+        stream.subject instanceof Rx.Subject,
+        'stream.subject is an instance of Rx.Subject'
     );
 });
 
-test( 'find() creates and returns a promise', function( assert ) {
+test( 'send() communicates with a targeted stream', function( assert ) {
     const streamService = this.subject();
+    const streamName = 'test';
+    const stream = streamService.create( streamName );
+    const actionName = 'doSomething';
 
-    assert.ok(
-        streamService.find( 'test' ) instanceof Ember.RSVP.Promise,
-        'Returned value is a Promise'
-    );
-});
-
-test( 'create() creates an observable stream', function( assert ) {
-    const streamService = this.subject();
-    const stream = streamService.create( () => {} );
-
-    assert.ok(
-        stream instanceof streamService.Rx.AnonymousObservable,
-        'Created object is an observable'
-    );
-});
-
-test( 'define() creates and registers an observable stream', function( assert ) {
-    assert.expect( 2 );
-
-    const streamService = this.subject();
-    const stream = streamService.define( 'test', () => {} );
-
-    assert.ok(
-        stream instanceof streamService.Rx.AnonymousObservable,
-        'Created object is an observable'
-    );
-
-    streamService.find( 'test' ).then( ( registeredStream ) => {
-        assert.ok(
-            registeredStream === stream,
-            'Received properly looked-up registered stream'
-        );
-    });
-});
-
-test( 'Registering and finding observables are supported', function( assert ) {
-    assert.expect( 2 );
-
-    const streamService = this.subject();
-    const observable = window.Rx.Observable.create( () => {} );
-
-    assert.ok(
-        streamService.register( 'test', observable ),
-        'Registered stream successfully'
-    );
-
-    streamService.find( 'test' ).then( ( stream ) => {
-        assert.ok(
-            stream === observable,
-            'Stream was looked up successfully'
-        );
-    });
-});
-
-test( 'subscribe() properly subscribes handlers to a stream', function( assert ) {
-    const streamService = this.subject();
-
-    streamService.define( 'test', ( observer ) => {
-        observer.onNext( true );
+    stream.on( actionName, ( data ) => {
+        assert.ok( data.okay, 'Received data from stream action successfully' );
     });
 
-    streamService.subscribe( 'test', ( okay ) => {
-        assert.ok( okay, 'Observer triggered successfully' );
-    });
+    streamService.send( streamName, actionName, { okay: true } );
 });
