@@ -38,7 +38,7 @@ export default Ember.Mixin.create({
      * @returns {undefined}
      */
     init() {
-        this[ '_super' ]();
+        this._super( ...arguments );
 
         const streamName = this.get( 'streamName' );
 
